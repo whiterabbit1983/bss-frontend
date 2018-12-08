@@ -1,10 +1,11 @@
 import uuid
 import pika
 import click
+from compiler import compile
 
 
 @click.command()
-@click.option('-d', '--source-file')
+@click.option('-s', '--source-file', required=True)
 def main(source_file):
     response = None
 
@@ -22,6 +23,8 @@ def main(source_file):
     callback_queue = result.method.queue
     channel.basic_consume(on_response, no_ack=True, queue=callback_queue)
     corr_id = str(uuid.uuid4())
+    body = compile(open(source_file).read())
+    print('==> compiled: ', body)
     channel.basic_publish(
         exchange='',
         routing_key='exec',
@@ -29,7 +32,7 @@ def main(source_file):
             reply_to=callback_queue,
             correlation_id=corr_id
         ),
-        body=data
+        body=body
     )
     while response is None:
         connection.process_data_events()
