@@ -23,7 +23,7 @@ def main(source_file):
     callback_queue = result.method.queue
     channel.basic_consume(on_response, no_ack=True, queue=callback_queue)
     corr_id = str(uuid.uuid4())
-    body = compile(open(source_file).read())
+    body = str(compile(open(source_file).read()))
     print('==> compiled: ', body)
     channel.basic_publish(
         exchange='',
