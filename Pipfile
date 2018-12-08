@@ -1,0 +1,22 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[scripts]
+app = "twistd -n web --port tcp:8080 --wsgi server.app"
+app-daemon = "twistd web --port tcp:8080 --wsgi server.app"
+
+[dev-packages]
+
+[packages]
+flask = "*"
+pika = "*"
+twisted = "*"
+flask-restful = "*"
+click = "*"
+flask-rabbitmq = {git = "https://github.com/whiterabbit1983/flask-rabbitmq.git",ref = "dev"}
+flask-socketio = "*"
+
+[requires]
+python_version = "3.6"
