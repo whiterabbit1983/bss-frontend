@@ -44,6 +44,9 @@ class Translator:
     # def visit_While(self, node, **kwargs):
     #     raise NotImplementedError('While is not implemented yet')
 
+    def visit_Str(self, node, **kwargs):
+        return node.s
+
     def visit_arguments(self, node, **kwargs):
         return self._map_visit(node.args, **kwargs)
 
