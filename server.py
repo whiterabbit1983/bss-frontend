@@ -7,12 +7,13 @@ import pkgutil
 import threading
 import parsers
 import firebase_admin
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, Blueprint, render_template, request, redirect, abort, url_for
 from werkzeug.utils import secure_filename
 from flask_restful import Resource, Api, reqparse, abort
 from flask_rabbitmq import Queue, RabbitMQ
 from firebase_admin import credentials, firestore
+from apscheduler.schedulers.background import BackgroundScheduler
 from models import db, Scenario
 
 
@@ -24,6 +25,9 @@ plugins_bp = Blueprint('plugins', __name__, url_prefix='/plugins')
 cred = credentials.Certificate('./ServiceAccount.json')
 firebase_admin.initialize_app(cred)
 firestore_db = firestore.client()
+
+scheduler = BackgroundScheduler()
+scheduler.start()
 
 
 class RMQ:
@@ -41,28 +45,6 @@ class RMQ:
 rmq = RMQ()
 
 
-# TODO: finish
-class Scheduler(threading.Thread):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.evt = threading.Event()
-        self._q = []
-
-    def add_job(self, job):
-        pass
-
-    def stop(self):
-        self.evt.set()
-
-    def run(self):
-        while not self.evt.is_set():
-            time.sleep(1)
-            now = datetime.now()
-
-
-scheduler = Scheduler()
-
-
 def languages():
     return [p.name for p in pkgutil.iter_modules(parsers.__path__)]
 
@@ -72,8 +54,11 @@ class TaskList(Resource):
         self.parser = parser = reqparse.RequestParser()
         parser.add_argument('task')
         parser.add_argument('language')
+        parser.add_argument('hrs')
+        parser.add_argument('min')
+        parser.add_argument('sec')
 
-    def post(self):
+    def _get_task(self):
         args = self.parser.parse_args()
         task = args.get('task', None)
         language = args.get('language', 'python')
@@ -82,10 +67,32 @@ class TaskList(Resource):
         compiler = getattr(parsers, language, None)
         if not compiler:
             abort(400, message=f'Unknown language {language}')
-        compiled_json = compiler.compile(task)
-        response = rmq.rpc.send_sync(str(compiled_json), '', 'exec')
+        return compiler.compile(task), args
+
+    def _get_trigger(self, schedule):
+        def trigger():
+            now = datetime.now()
+            return abs((now - schedule).seconds)
+
+        return trigger
+
+    def _exec_task(self, scenario):
+        response = rmq.rpc.send_sync(str(scenario), '', 'exec')
         if isinstance(response, bytes):
             response = response.decode()
+        return response
+
+    def put(self):
+        compiled_json, args = self._get_task()
+        hrs = args.get('hrs', None)
+        mins = args.get('min', None)
+        sec = args.get('sec', None)
+        schedule = datetime.now().replace(hour=int(hrs), minute=int(mins), second=int(sec))
+        scheduler.add_job(self._exec_task, trigger=str(schedule), args=(compiled_json,))
+
+    def post(self):
+        compiled_json, _ = self._get_task()
+        response = self._exec_task(compiled_json)
         return json.loads(response)[0], 201
 
 

@@ -15,6 +15,24 @@
                         $("#result").text(JSON.stringify(response));
                     });
                 });
+
+                $("#schedule").click(function() {
+                    var task_json = {
+                        task: $('#source').val(), 
+                        language: $("#language").val(),
+                        hrs: $("#hrs").val(),
+                        min: $("#min").val(),
+                        sec: $("#sec").val()
+                    };
+                    $.ajax({
+                        url: url,
+                        type: 'PUT',
+                        data: task_json,
+                        success: function() {
+                            console.log('PUT done.');
+                        }
+                    });
+                });
             });
         </script>
         <h1>Create new scenario</h1>
@@ -54,11 +72,17 @@
                 <tr>
                     <td><input type='submit' value='Save'></td>
                     <td><input type='button' id='run' value='Run'></td>
-                    <td><input type='button' id='schedule' value='Schedule'></td>
                 </tr>
             </table>
         </form>
-    Result: <div id='result'></div>
+        <br>
+        Result: <div id='result'></div>
+        <br>
+        Hours <input id="hrs" name="hrs">
+        Minutes <input id="min" name="min">
+        Seconds <input id="sec" name="sec">
+        <input type='button' id='schedule' value='Schedule'><br>
+    
     <a href={{ url_for('scenarios.list_scenarios') }}>Back to scenarios</a>
     </body>
 </html>

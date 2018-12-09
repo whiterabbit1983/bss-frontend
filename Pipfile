@@ -19,6 +19,7 @@ flask-rabbitmq = {git = "https://github.com/whiterabbit1983/flask-rabbitmq.git",
 flask-socketio = "*"
 peewee = "*"
 firebase-admin = "*"
+apscheduler = "*"
 
 [requires]
 python_version = "3.6"
