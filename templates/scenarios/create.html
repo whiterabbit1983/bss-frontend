@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <link rel="stylesheet"
+            href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+    </head>
+   <body>
+        <script>
+            var url = '/tasks';
+            $(document).ready(function() {
+                $("#run").click(function() {
+                    $.post(url, {task: $('#source').val(), language: $("#language").val()}, function(response) {
+                        $("#result").text(JSON.stringify(response));
+                    });
+                });
+            });
+        </script>
+        <h1>Create new scenario</h1>
+        <form action="{{ url_for('scenarios.add_scenario') }}" method='POST'>
+            <input type="hidden" name="task_id" id="task_id" value="{% if scenario %}{{ scenario.id}}{% endif %}">
+            <table border=0 align="top">
+                <tr>
+                    <td>Name</td>
+                    <td>
+                        <input id='name' name='name'
+                        {% if scenario %}
+                            value="{{ scenario.name }}"
+                        {% endif %}>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Source code</td>
+                    <td>
+                        <textarea id='source' name='source' rows=40 cols=100>{% if scenario %}{{ scenario.program }}{% endif %}</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Language</td>
+                    <td>
+                        <select id='language' name='language'>
+                            {% for language in languages %}
+                                <option value={{ language }}
+                                {% if scenario and scenario.language == language %}
+                                    selected="selected"
+                                {% endif %}>{{ language }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td><input type='submit' value='Save'></td>
+                    <td><input type='button' id='run' value='Run'></td>
+                    <td><input type='button' id='schedule' value='Schedule'></td>
+                </tr>
+            </table>
+        </form>
+    Result: <div id='result'></div>
+    <a href={{ url_for('scenarios.list_scenarios') }}>Back to scenarios</a>
+    </body>
+</html>

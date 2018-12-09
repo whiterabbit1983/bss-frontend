@@ -17,6 +17,8 @@ flask-restful = "*"
 click = "*"
 flask-rabbitmq = {git = "https://github.com/whiterabbit1983/flask-rabbitmq.git",ref = "dev"}
 flask-socketio = "*"
+peewee = "*"
+firebase-admin = "*"
 
 [requires]
 python_version = "3.6"

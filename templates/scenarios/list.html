@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+   <body>
+        <h1>Available scenarios</h1>
+        <table>
+            {% for scenario in scenarios %}
+                <tr>
+                    <td>
+                        <a href={{ url_for('scenarios.edit_scenario', task_id=scenario.id) }}>{{ scenario.name }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    <a href="{{ url_for('scenarios.add_scenario') }}">Create</a>
+    </body>
+</html>

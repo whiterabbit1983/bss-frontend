@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+   <body>
+        <h1>Available plugins</h1>
+        <table>
+            {% for plugin in plugins %}
+                <tr>
+                    <td>
+                        {{ plugin }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    <a href="{{ url_for('plugins.add_plugin') }}">Add</a>
+    </body>
+</html>

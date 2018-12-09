@@ -15,7 +15,7 @@ class Translator:
         self._env = {}
         self.defs = {}
 
-    visit_None = OneLiner('null')    
+    visit_None = OneLiner('null')
     visit_Add = visit_UAdd = OneLiner('+')
     visit_Sub = visit_USub = OneLiner('-')
     visit_Mult = OneLiner('*')
@@ -45,7 +45,7 @@ class Translator:
     #     raise NotImplementedError('While is not implemented yet')
 
     def visit_Str(self, node, **kwargs):
-        return node.s
+        return ['v', node.s]
 
     def visit_arguments(self, node, **kwargs):
         return self._map_visit(node.args, **kwargs)
@@ -100,7 +100,7 @@ class Translator:
         return node.id
 
     def visit_Num(self, node, **kwargs):
-        return node.n
+        return ['v', node.n]
 
     def visit_Call(self, node, **kwargs):
         args = [self.visit(a) for a in node.args]
